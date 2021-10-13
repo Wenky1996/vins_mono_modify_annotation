@@ -62,7 +62,7 @@ nav_msgs::Path no_loop_path;
 std::string BRIEF_PATTERN_FILE;
 std::string POSE_GRAPH_SAVE_PATH;
 std::string VINS_RESULT_PATH;
-CameraPoseVisualization cameraposevisual(1, 0, 0, 1);
+CameraPoseVisualization cameraposevisual(1, 0, 0, 1);//标志的颜色红色
 Eigen::Vector3d last_t(-100, -100, -100);
 double last_image_time = -1;
 
@@ -169,7 +169,7 @@ void imu_forward_callback(const nav_msgs::Odometry::ConstPtr &forward_msg)
 
         Vector3d vio_t_cam;
         Quaterniond vio_q_cam;
-        vio_t_cam = vio_t + vio_q * tic;
+        vio_t_cam = vio_t + vio_q * tic;//
         vio_q_cam = vio_q * qic;        
 
         cameraposevisual.reset();
@@ -216,8 +216,8 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
 
     Vector3d vio_t_cam;
     Quaterniond vio_q_cam;
-    vio_t_cam = vio_t + vio_q * tic;
-    vio_q_cam = vio_q * qic;        
+    vio_t_cam = vio_t + vio_q * tic;//外参平移
+    vio_q_cam = vio_q * qic;        //外参旋转
 
     if (!VISUALIZE_IMU_FORWARD)
     {
@@ -263,7 +263,7 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
     }
     pub_key_odometrys.publish(key_odometrys);
 
-    if (!LOOP_CLOSURE)
+    if (!LOOP_CLOSURE)//是否开启回环检测默认设置为开启1
     {
         geometry_msgs::PoseStamped pose_stamped;
         pose_stamped.header = pose_msg->header;
@@ -274,7 +274,7 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
         no_loop_path.header = pose_msg->header;
         no_loop_path.header.frame_id = "world";
         no_loop_path.poses.push_back(pose_stamped);
-        pub_vio_path.publish(no_loop_path);
+        pub_vio_path.publish(no_loop_path);  //不会发布非回环的路径
     }
 }
 
@@ -455,6 +455,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "pose_graph");
     ros::NodeHandle n("~");
+
     posegraph.registerPub(n);
 
     // read param

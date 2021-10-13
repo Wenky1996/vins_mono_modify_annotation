@@ -140,6 +140,8 @@ void imu_callback(const sensor_msgs::ImuConstPtr &imu_msg)
     if (imu_msg->header.stamp.toSec() <= last_imu_t)
     {
         ROS_WARN("imu message in disorder!");
+        ROS_WARN("imu_msg->header.stamp.toSec() is %f ",imu_msg->header.stamp.toSec());
+        ROS_WARN("last_imu_t is %f",last_imu_t);
         return;
     }
     last_imu_t = imu_msg->header.stamp.toSec();

@@ -38,6 +38,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
     if (img_msg->header.stamp.toSec() - last_image_time > 1.0 || img_msg->header.stamp.toSec() < last_image_time)
     {
         ROS_WARN("image discontinue! reset the feature tracker!");
+        ROS_WARN("the time diff is %f",img_msg->header.stamp.toSec() - last_image_time);
         first_image_flag = true; 
         last_image_time = 0;
         pub_count = 1;
@@ -104,8 +105,8 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
     {
         bool completed = false;
         for (int j = 0; j < NUM_OF_CAM; j++)
-            if (j != 1 || !STEREO_TRACK)
-                completed |= trackerData[j].updateID(i);
+            if (j != 1 || !STEREO_TRACK)//STEREO_TRACK = false;
+                completed |= trackerData[j].updateID(i);//跟踪一帧ID加一
         if (!completed)
             break;
     }

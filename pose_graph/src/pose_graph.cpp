@@ -874,7 +874,7 @@ void PoseGraph::publish()
     for (int i = 1; i <= sequence_cnt; i++)
     {
         //if (sequence_loop[i] == true || i == base_sequence)
-        if (1 || i == base_sequence)
+        if (1 || i == base_sequence)//base_sequence初始化为1
         {
             pub_pg_path.publish(path[i]);
             pub_path[i].publish(path[i]);
