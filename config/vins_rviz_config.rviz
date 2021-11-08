@@ -3,7 +3,11 @@ Panels:
     Help Height: 0
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /VIO1
+        - /VIO1/camera_visual1
+        - /pose_graph1
+        - /pose_graph1/camera_visual1
       Splitter Ratio: 0.4651159942150116
     Tree Height: 232
   - Class: rviz/Selection
@@ -144,7 +148,7 @@ Visualization Manager:
           Marker Topic: /vins_estimator/camera_pose_visual
           Name: camera_visual
           Namespaces:
-            {}
+            CameraPoseVisualization: true
           Queue Size: 100
           Value: true
         - Alpha: 1
@@ -210,6 +214,12 @@ Visualization Manager:
           Frame Timeout: 15
           Frames:
             All Enabled: true
+            body:
+              Value: true
+            camera:
+              Value: true
+            world:
+              Value: true
           Marker Alpha: 1
           Marker Scale: 1
           Name: TF
@@ -217,10 +227,13 @@ Visualization Manager:
           Show Axes: true
           Show Names: true
           Tree:
-            {}
+            world:
+              body:
+                camera:
+                  {}
           Update Interval: 0
           Value: true
-      Enabled: false
+      Enabled: true
       Name: VIO
     - Class: rviz/Group
       Displays:
@@ -277,7 +290,7 @@ Visualization Manager:
           Marker Topic: /pose_graph/pose_graph
           Name: loop_visual
           Namespaces:
-            {}
+            CameraPoseVisualization: true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -285,7 +298,7 @@ Visualization Manager:
           Marker Topic: /pose_graph/camera_pose_visual
           Name: camera_visual
           Namespaces:
-            {}
+            CameraPoseVisualization: true
           Queue Size: 100
           Value: true
         - Class: rviz/Image
@@ -305,7 +318,7 @@ Visualization Manager:
           Marker Topic: /pose_graph/key_odometrys
           Name: Marker
           Namespaces:
-            {}
+            key_odometrys: true
           Queue Size: 100
           Value: true
         - Alpha: 1
@@ -480,7 +493,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 7.136428356170654
+      Distance: 4.386063098907471
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -496,9 +509,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.1047966480255127
+      Pitch: 0.24020233750343323
       Target Frame: <Fixed Frame>
-      Yaw: 3.2372303009033203
+      Yaw: 3.2371885776519775
     Saved: ~
 Window Geometry:
   Displays:

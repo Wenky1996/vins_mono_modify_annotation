@@ -57,6 +57,7 @@ ros::Publisher pub_match_points;
 ros::Publisher pub_camera_pose_visual;
 ros::Publisher pub_key_odometrys;
 ros::Publisher pub_vio_path;
+ros::Publisher pub_camera_pose;
 nav_msgs::Path no_loop_path;
 
 std::string BRIEF_PATTERN_FILE;
@@ -152,7 +153,7 @@ void pose_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
 
 void imu_forward_callback(const nav_msgs::Odometry::ConstPtr &forward_msg)
 {
-    if (VISUALIZE_IMU_FORWARD)
+    if (VISUALIZE_IMU_FORWARD)//设置为0，不输出IMU，output imu forward propogation to achieve low latency and high frequence results
     {
         Vector3d vio_t(forward_msg->pose.pose.position.x, forward_msg->pose.pose.position.y, forward_msg->pose.pose.position.z);
         Quaterniond vio_q;
@@ -177,6 +178,7 @@ void imu_forward_callback(const nav_msgs::Odometry::ConstPtr &forward_msg)
         cameraposevisual.publish_by(pub_camera_pose_visual, forward_msg->header);
     }
 }
+
 void relo_relative_pose_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
 {
     Vector3d relative_t = Vector3d(pose_msg->pose.pose.position.x,
@@ -216,8 +218,8 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
 
     Vector3d vio_t_cam;
     Quaterniond vio_q_cam;
-    vio_t_cam = vio_t + vio_q * tic;//外参平移
-    vio_q_cam = vio_q * qic;        //外参旋转
+    vio_t_cam = vio_t + vio_q * tic;//外参平移tic
+    vio_q_cam = vio_q * qic;        //外参旋转qic
 
     if (!VISUALIZE_IMU_FORWARD)
     {
@@ -226,7 +228,19 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
         cameraposevisual.publish_by(pub_camera_pose_visual, pose_msg->header);
     }
 
-    odometry_buf.push(vio_t_cam);
+    nav_msgs::Odometry camera_pose;
+    camera_pose.header.stamp=pose_msg->header.stamp;
+    camera_pose.pose.pose.orientation.w=vio_q_cam.w();
+    camera_pose.pose.pose.orientation.x=vio_q_cam.x();
+    camera_pose.pose.pose.orientation.y=vio_q_cam.y();
+    camera_pose.pose.pose.orientation.z=vio_q_cam.z();
+    camera_pose.pose.pose.position.z=vio_t_cam.z();
+    camera_pose.pose.pose.position.y=vio_t_cam.y();
+    camera_pose.pose.pose.position.x=vio_t_cam.x();
+
+    pub_camera_pose.publish(camera_pose);
+
+    odometry_buf.push(vio_t_cam);//里程信息
     if (odometry_buf.size() > 10)
     {
         odometry_buf.pop();
@@ -239,7 +253,7 @@ void vio_callback(const nav_msgs::Odometry::ConstPtr &pose_msg)
     key_odometrys.type = visualization_msgs::Marker::SPHERE_LIST;
     key_odometrys.action = visualization_msgs::Marker::ADD;
     key_odometrys.pose.orientation.w = 1.0;
-    key_odometrys.lifetime = ros::Duration();
+    key_odometrys.lifetime = ros::Duration();//时间段
 
     //static int key_odometrys_id = 0;
     key_odometrys.id = 0; //key_odometrys_id++;
@@ -528,18 +542,21 @@ int main(int argc, char **argv)
     fsSettings.release();
 
     ros::Subscriber sub_imu_forward = n.subscribe("/vins_estimator/imu_propagate", 2000, imu_forward_callback);
+
     ros::Subscriber sub_vio = n.subscribe("/vins_estimator/odometry", 2000, vio_callback);
     ros::Subscriber sub_image = n.subscribe(IMAGE_TOPIC, 2000, image_callback);
     ros::Subscriber sub_pose = n.subscribe("/vins_estimator/keyframe_pose", 2000, pose_callback);
     ros::Subscriber sub_extrinsic = n.subscribe("/vins_estimator/extrinsic", 2000, extrinsic_callback);
+
     ros::Subscriber sub_point = n.subscribe("/vins_estimator/keyframe_point", 2000, point_callback);
     ros::Subscriber sub_relo_relative_pose = n.subscribe("/vins_estimator/relo_relative_pose", 2000, relo_relative_pose_callback);
 
     pub_match_img = n.advertise<sensor_msgs::Image>("match_image", 1000);
     pub_camera_pose_visual = n.advertise<visualization_msgs::MarkerArray>("camera_pose_visual", 1000);
-    pub_key_odometrys = n.advertise<visualization_msgs::Marker>("key_odometrys", 1000);
+    pub_key_odometrys = n.advertise<visualization_msgs::Marker>("key_odometrys", 1000);//类型为marker
     pub_vio_path = n.advertise<nav_msgs::Path>("no_loop_path", 1000);
     pub_match_points = n.advertise<sensor_msgs::PointCloud>("match_points", 100);
+    pub_camera_pose  = n.advertise<nav_msgs::Odometry>("/pose_graph/camera_pose",1000);
 
     std::thread measurement_process;
     std::thread keyboard_command_process;
