@@ -427,7 +427,6 @@ CameraCalibration::calibrateHelper(CameraPtr& camera,
 {
     rvecs.assign(m_scenePoints.size(), cv::Mat());
     tvecs.assign(m_scenePoints.size(), cv::Mat());
-
     // STEP 1: Estimate intrinsics
     camera->estimateIntrinsics(m_boardSize, m_scenePoints, m_imagePoints);
 

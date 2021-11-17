@@ -556,7 +556,7 @@ int main(int argc, char **argv)
     pub_key_odometrys = n.advertise<visualization_msgs::Marker>("key_odometrys", 1000);//类型为marker
     pub_vio_path = n.advertise<nav_msgs::Path>("no_loop_path", 1000);
     pub_match_points = n.advertise<sensor_msgs::PointCloud>("match_points", 100);
-    pub_camera_pose  = n.advertise<nav_msgs::Odometry>("/pose_graph/camera_pose",1000);
+    pub_camera_pose  = n.advertise<nav_msgs::Odometry>("/pose_graph/camera_pose",1000);//添加的消息
 
     std::thread measurement_process;
     std::thread keyboard_command_process;
